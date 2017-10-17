@@ -6,21 +6,23 @@
     "authors": [
         "Erik Smith"
     ],
-    "sourcePaths": [".", "../src"],
+    "sourcePaths": ["."],
+	
     "libs" : ["sqlite3"],
     "dependencies": {
+		"dstddb": {"version": "~master", "path": "../"}
     },
     "configurations": [
     {
         "name": "library",
-        "targetType": "executable",
+        "targetType": "executable"
     },
     {
         "name": "unittest",
         "targetType": "executable",
         "targetName": "unittest",
-        "dflags": ["-main"],
+        "dflags": ["-unittest"]
     },
-    ],
+    ]
 }
 
