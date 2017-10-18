@@ -35,7 +35,17 @@ Source resolve(string name) {
         return source;
     }
 
-    auto home = environment["HOME"];
+    string home = ".";
+
+    version( Posix )
+    {
+        home = environment.get("HOME", home);
+    }
+    
+    version( Windows )
+    {
+        home = environment.get("USERPROFILE", home);
+    }
 
     string file = home ~ "/db.json";
     auto bytes = read(file);
