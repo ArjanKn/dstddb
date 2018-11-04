@@ -14,23 +14,24 @@ import std.typecons;
 import std.container.array;
 import std.experimental.logger;
 public import std.database.allocator;
-import std.database.front;
+import std.database.BasicDatabase;
 import std.datetime;
 
 struct DefaultPolicy {
     alias Allocator = MyMallocator;
 }
 
-alias Database(T) = BasicDatabase!(Driver!T,T);
+alias Database(T) = BasicDatabase!(Driver!T);
 
 auto createDatabase()(string defaultURI="") {
     return Database!DefaultPolicy(defaultURI);  
 }
 
 
-struct Driver(Policy) {
+struct Driver(P) {
+    alias Policy = P;
     alias Allocator = Policy.Allocator;
-    alias Cell = BasicCell!(Driver!Policy,Policy);
+    alias Cell = BasicCell!(Driver);
 
     private static bool isError(RETCODE ret) {
         return 

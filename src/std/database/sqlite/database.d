@@ -13,7 +13,7 @@ import std.database.source;
 import std.database.allocator;
 import std.database.pool;
 import std.experimental.logger;
-import std.database.front;
+import std.database.BasicDatabase;
 
 import std.container.array;
 import std.datetime;
@@ -24,7 +24,7 @@ struct DefaultPolicy {
     alias Allocator = MyMallocator;
 }
 
-alias Database(T) = BasicDatabase!(Driver!T,T);
+alias Database(T) = BasicDatabase!(Driver!T);
 
 auto createDatabase()(string defaultURI="") {
     return Database!DefaultPolicy(defaultURI);  
@@ -34,9 +34,10 @@ auto createDatabase(T)(string defaultURI="") {
     return Database!T(defaultURI);  
 }
 
-struct Driver(Policy) {
+struct Driver(P) {
+    alias Policy = P;
     alias Allocator = Policy.Allocator;
-    alias Cell = BasicCell!(Driver,Policy);
+    alias Cell = BasicCell!(Driver);
 
     struct Database {
         alias queryVariableType = QueryVariableType.QuestionMark;
@@ -200,6 +201,7 @@ struct Driver(Policy) {
     struct Result {
         private Statement* stmt_;
         private sqlite3_stmt *st_;
+        bool init_;
         int columns;
         int status_;
 
@@ -226,6 +228,11 @@ struct Driver(Policy) {
         bool hasRows() {return stmt_.hasRows;}
 
         int fetch() {
+            // needs more attention
+            if (!init_) {  
+              init_ = 1;
+              return 1;
+            }
             status_ = sqlite3_step(st_);
             if (status_ == SQLITE_ROW) return 1;
             if (status_ == SQLITE_DONE) {

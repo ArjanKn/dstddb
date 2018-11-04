@@ -10,7 +10,7 @@ public import std.database.exception;
 import std.stdio;
 import std.typecons;
 import std.container.array;
-import std.database.front;
+import std.database.BasicDatabase;
 import std.database.allocator;
 import std.database.source;
 import std.database.common;
@@ -21,7 +21,7 @@ import std.database.variant;
 
 import std.meta;
 
-alias Database(T) = BasicDatabase!(Driver!T,T);
+alias Database(T) = BasicDatabase!(Driver!T);
 
 struct DefaultPolicy {
     alias Allocator = MyMallocator;
@@ -36,9 +36,10 @@ auto createDatabase()(string defaultURI="") {
     return Database!DefaultPolicy(defaultURI);  
 }
 
-struct Driver(Policy) {
+struct Driver(P) {
+    alias Policy = P;
     alias Allocator = Policy.Allocator;
-    alias Cell = BasicCell!(Driver,Policy);
+    alias Cell = BasicCell!(Driver);
     alias BindArgs = Array!Variant;
 
     // revise using allocator make
@@ -230,7 +231,7 @@ struct Driver(Policy) {
 
             info(
                     "poly register: ",
-                    "name: ", name, ", "
+                    "name: ", name, ", ",
                     "type: ", typeid(DB),
                     "index: ", drivers.length);
         }
